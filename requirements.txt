@@ -1,1 +1,3 @@
 osmnx
+ipykernel
+scikit-learn
