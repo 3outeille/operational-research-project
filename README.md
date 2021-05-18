@@ -3,7 +3,7 @@
 # Setup
 
 ```
-virtualenv env
-source env/bin/activate
+virtualenv ero-env
+source ero-env/bin/activate
 pip install -r requirements.txt
 ```
