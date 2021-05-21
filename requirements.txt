@@ -1,3 +1,4 @@
+jupyter notebook
 osmnx
 ipykernel
 scikit-learn
