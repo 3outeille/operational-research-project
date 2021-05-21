@@ -1,7 +1,8 @@
 # operational-research-project
 
-# Setup
+# Setup (Linux)
 
+## First time only
 ```
 virtualenv ero-env
 source ero-env/bin/activate
@@ -12,5 +13,13 @@ pip install -r requirements.txt
 
 ```
 python -m ipykernel install --user --name=ero-env
+jupyter notebook
 # -> In jupyter notebook, click on Noyau > Changer de noyau > nom_de_ton_env
+```
+
+## Other times
+
+- Just need to activate your environnement
+```
+source ero-env/bin/activate
 ```
