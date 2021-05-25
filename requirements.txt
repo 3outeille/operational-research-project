@@ -1,4 +1,5 @@
-jupyter notebook
+jupyter
 osmnx
 ipykernel
 scikit-learn
+descartes
