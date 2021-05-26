@@ -1,4 +1,5 @@
 descartes
+imageio
 ipykernel
 jupyter
 scikit-learn
