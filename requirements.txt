@@ -1,5 +1,6 @@
-jupyter
-osmnx
-ipykernel
-scikit-learn
 descartes
+ipykernel
+jupyter
+scikit-learn
+streamlit
+osmnx
