@@ -4,22 +4,36 @@ import pandas as pd
 
 import solver
 
+ox.config(log_console=True, all_oneway=True)
+
 def main():
     # Graph initialization
     # define a point at the corner of California St and Mason St in SF
-    location_point = (37.791427, -122.410018)
+    # location_point = (37.791427, -122.410018)
 
-    # create network from point, inside bounding box of N, S, E, W each 100m from point
-    MDG = ox.graph_from_point(location_point, dist=200, dist_type="bbox", network_type="drive")
+    # # create network from point, inside bounding box of N, S, E, W each 100m from point
+    # MDG = ox.graph_from_point(location_point, dist=200, dist_type="bbox", network_type="drive")
+    # MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
+    # MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
+
+    # # Save graph
+    # ox.io.save_graphml(MG, 'montreal-centreville-Graph.graphml')
+    # Load graph
+    #MG = ox.io.load_graphml('montreal-centreville-Graph.graphml', edge_dtypes={"oneway": str})
+
+    # create network from that bounding box
+    north, east = 45.512984, -73.553328
+    south, west = 45.496527, -73.581779
+    MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
 
     # Graph eulerization
     G_aug = solver.eulerize_graph(MG)
-
     # Find shortest circuit
-    start_node = 0
-    euler_circuit = solver.find_shortest_circuit(G_aug, MG, start_node)
+
+    print("find_shortest_circuit")
+    euler_circuit = solver.find_shortest_circuit(G_aug, MG, start_node=0)
 
    # Print Circuit
     for i, edge in enumerate(euler_circuit):
@@ -29,6 +43,8 @@ def main():
         else:
             print(end=" => ")
             print(edge[1], end="")
+
+    print("\n")
 
     # Compute statistics
     total_mileage_of_circuit = sum([edge[2][0]['length'] for edge in euler_circuit])
