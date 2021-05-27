@@ -1,13 +1,11 @@
-import copy
-import itertools
-import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx as ox
 import pandas as pd
 
-import utils
+import solver
 
-def solve():
+def main():
+    # Graph initialization
     # define a point at the corner of California St and Mason St in SF
     location_point = (37.791427, -122.410018)
 
@@ -16,36 +14,14 @@ def solve():
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
 
-    # Define node positions data structure (dict) for plotting
-    node_positions = {node[0]: (node[1]['x'], node[1]['y']) for node in MG.nodes(data=True)}
+    # Graph eulerization
+    G_aug = solver.eulerize_graph(MG)
 
-    # CPP: Chinese Postman problem
+    # Find shortest circuit
+    start_node = 0
+    euler_circuit = solver.find_shortest_circuit(G_aug, MG, start_node)
 
-    # CPP Step 1: Find Nodes of Odd Degree
-    nodes_odd_degree = [v for v, d in MG.degree() if d % 2 == 1]
-
-    # CPP Step 2: Find Min Distance Pairs
-    # Step 2.1: Compute Node Pairs/Couple
-    odd_node_pairs = list(itertools.combinations(nodes_odd_degree, 2))
-
-    # Step 2.2: Compute Shortest Paths between Node Pairs/Couple
-    weight = lambda u, v, d: d[0]['length']
-    odd_node_pairs_shortest_paths = utils.get_shortest_paths_distances(MG, odd_node_pairs, weight)
-
-    # Step 2.3: Create Complete Graph
-    g_odd_complete = utils.create_complete_graph(odd_node_pairs_shortest_paths, flip_weights=True)
-
-    # Step 2.4: Compute Minimum Weight Matching
-    odd_matching_dupes = nx.algorithms.max_weight_matching(g_odd_complete, True)
-    odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in odd_matching_dupes]))
-
-    # Step 2.5: Augment the Original Graph
-    g_aug = utils.add_augmenting_path_to_graph(MG, odd_matching)
-
-    # CPP Step 3: Compute Eulerian Circuit
-    euler_circuit = utils.create_eulerian_circuit(g_aug, MG, 0)
-
-    # Print Circuit
+   # Print Circuit
     for i, edge in enumerate(euler_circuit):
         if i == 0:
             print(edge[0], end=" => ")
@@ -81,4 +57,4 @@ def solve():
     print(edge_visits.to_string(index=False))
 
 if __name__ == '__main__':
-    solve()
+    main()
