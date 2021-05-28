@@ -86,8 +86,6 @@ def generate_random_graph(nb_node, p=0.8, is_weighted=False):
     else:
         sp.sparse.save_npz("unidrected-unweighted-graph-{}.npz".format(nb_node), G)
 
-ox.config(log_console=True, all_oneway=True)
-
 def generate_montreal_graph():
     MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
@@ -105,6 +103,7 @@ def generate_downtown_montreal_graph():
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
     ox.io.save_graphml(MG, 'montreal-downtown-graph.graphml')
     
+ox.config(log_console=True, all_oneway=True)
 #generate_montreal_graph()
 #generate_downtown_montreal_graph()
 #generate_random_graph(nb_node=5, is_weighted=False)
