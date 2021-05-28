@@ -1,14 +1,25 @@
 import networkx as nx
 
-def get_shortest_paths_distances(graph, pairs, edge_weight_name):
+
+def get_weight(u, v, d):
+    return d[0]['length']
+
+def get_shortest_path_distances(graph):
+    dist = {}
+
+    for node in graph.nodes():
+        print(node)
+        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=get_weight)
+
+    return dist
+
+def get_shortest_paths_distances_pairs(graph, pairs):
     """
         Computes shortest distance between each pair of nodes in a graph.
         Returns a dictionary keyed on node pairs (tuples).
     """
-    dist = {}
-
-    for node in graph.nodes():
-        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=edge_weight_name)
+    
+    dist = get_shortest_path_distances(graph)
 
     distances = {}
     
@@ -18,8 +29,47 @@ def get_shortest_paths_distances(graph, pairs, edge_weight_name):
 
     # distances = {}
     # for pair in pairs:
-    #     distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weight=edge_weight_name)
+    #     distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weigh)
     # return distances
+
+def get_shortest_path_distances(graph):
+    dist = {}
+
+    for node in graph.nodes():
+        print(node)
+        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=get_weight)
+
+    return dist
+
+def compute_odd_pairs(graph, odd_nodes):
+    matched = set()
+    not_matched = set(odd_nodes)
+    dist = get_shortest_path_distances(graph)
+    res = []
+
+    print("let's match")
+
+    for u in odd_nodes:
+        if (u in matched):
+            continue
+
+        matched.add(u)
+        not_matched.remove(u)
+
+        min_dist = -1
+        min_node = -1
+        
+        for v in not_matched:
+            if (min_dist > dist[u][v] or min_dist == -1):
+                min_node = v
+                min_dist = dist[u][v]
+
+        matched.add(min_node)
+        not_matched.remove(min_node)
+
+        res.append((u, min_node))
+
+    return res
 
 def create_complete_graph(pair_weights, flip_weights=True):
     """

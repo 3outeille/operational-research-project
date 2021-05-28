@@ -19,12 +19,12 @@ def main():
     # # Save graph
     # ox.io.save_graphml(MG, 'montreal-centreville-Graph.graphml')
     # Load graph
-    #MG = ox.io.load_graphml('montreal-centreville-Graph.graphml', edge_dtypes={"oneway": str})
+    MDG = ox.io.load_graphml('montrealGraph.graphml', edge_dtypes={"oneway": str})
 
     # create network from that bounding box
-    north, east = 45.512984, -73.553328
-    south, west = 45.496527, -73.581779
-    MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
+    #north, east = 45.512984, -73.553328
+    #south, west = 45.496527, -73.581779
+    #MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
 
