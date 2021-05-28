@@ -5,10 +5,21 @@ def get_shortest_paths_distances(graph, pairs, edge_weight_name):
         Computes shortest distance between each pair of nodes in a graph.
         Returns a dictionary keyed on node pairs (tuples).
     """
+    dist = {}
+
+    for node in graph.nodes():
+        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=edge_weight_name)
+
     distances = {}
+    
     for pair in pairs:
-        distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weight=edge_weight_name)
+        distances[pair] = dist[pair[0]][pair[1]]
     return distances
+
+    # distances = {}
+    # for pair in pairs:
+    #     distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weight=edge_weight_name)
+    # return distances
 
 def create_complete_graph(pair_weights, flip_weights=True):
     """
