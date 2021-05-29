@@ -78,13 +78,13 @@ def generate_random_graph(nb_node, p=0.8, is_weighted=False):
         Generating a random undirected weighted/unweighted graph.
     """
     G = create_random_graph(n=nb_node, p=p, is_weighted=is_weighted)
-    G_reg = RegGraph(G, is_weighted=False)
+    G_reg = RegGraph(G, is_weighted=is_weighted)
     G = sp.sparse.csc_matrix(np.array(G_reg.adjmat))
 
     if is_weighted:
-        sp.sparse.save_npz("unidrected-weighted-graph-{}.npz".format(nb_node), G)
+        sp.sparse.save_npz("undirected-weighted-graph-{}.npz".format(nb_node), G)
     else:
-        sp.sparse.save_npz("unidrected-unweighted-graph-{}.npz".format(nb_node), G)
+        sp.sparse.save_npz("undirected-unweighted-graph-{}.npz".format(nb_node), G)
 
 def generate_montreal_graph():
     MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
@@ -106,4 +106,4 @@ def generate_downtown_montreal_graph():
 ox.config(log_console=True, all_oneway=True)
 #generate_montreal_graph()
 #generate_downtown_montreal_graph()
-#generate_random_graph(nb_node=5, is_weighted=False)
+generate_random_graph(nb_node=5, is_weighted=True)

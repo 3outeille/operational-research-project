@@ -1,89 +1,71 @@
-class RegGraph:
-    """
-        Build regular graph representation from Osmnx graph.
-    """
-    
-    def __init__(self, G, is_weighted=False):
-        self.G = G
-        self.is_weighted = is_weighted
-        self.adjlist = self.create_adjlist(self.G)
-        self.adjmat = self.adjlist_to_adjmat(self.adjlist)
+from networkx.algorithms.shortest_paths.unweighted import predecessor
+import numpy as np
+import scipy as sp
+
+def get_shortest_path_distances(graph):
+    all_dist = {}
+
+    for node in range(len(graph)):
+        dist_matrix, predecessors = sp.sparse.csgraph.dijkstra(csgraph=graph, directed=False, indices=node, return_predecessors=True)
         
-    def create_adjlist(self, G):
-        adjlist = []
-        for src, nbrdict in self.G.adjacency():
-            tmp = []
-            for dst, w in nbrdict.items():
-                if self.is_weighted:
-                    tmp.append((dst, w['weight']))
-                else:
-                    tmp.append(dst)
-            adjlist.append((src, tmp))
-        return dict(adjlist)
+        dist = {}
+        for i, shortest_path in enumerate(dist_matrix):
+            dist[i] = shortest_path
 
-    def adjlist_to_adjmat(self, adjlist):
-        n = len(self.adjlist)
-        adjmat = [[0 for j in range(n)] for i in range(n)]
-        for src in range(n):
-            if self.is_weighted:
-                for dst, weight in self.adjlist[src]:
-                    adjmat[src][dst] = weight
-            else:
-                for dst in self.adjlist[src]:
-                    adjmat[src][dst] = 1
-        return adjmat
-
-    def pretty_print_adjmat(self):
-        n = len(self.adjmat)
-
-        print("  ",end="")
-        for i in range(n):
-            print("{} ".format(i), end="")
-
-        print()
-
-        for i in range(n):
-            print("{} ".format(i), end="")
-            for j in range(n):
-                print(self.adjmat[i][j], end="|")
-            print()
-
-def create_random_graph(n, is_weighted=False):
-    """
-        Generating a random undirected weighted/unweighted graph.
-    """
-    V = set([v for v in range(n)])
-    E = set()
-    for combination in combinations(V, 2):
-        if is_weighted:
-            w = random.randint(1, 100)
-            E.add((*combination, w))
-        else:
-            E.add(combination)
-
-    g = nx.Graph()
-    g.add_nodes_from(V)
+        all_dist[node] = (dist, predecessors)
     
-    if is_weighted:
-        g.add_weighted_edges_from(E)
-    else:
-        g.add_edges_from(E)
+    return all_dist
+
+def compute_odd_pairs(graph, odd_nodes):
+    matched = set()
+    not_matched = set(odd_nodes)
+    all_dist = get_shortest_path_distances(graph)
+    res = []
+
+    print("let's match")
+
+    for u in odd_nodes:
+        if (u in matched):
+            continue
+
+        matched.add(u)
+        not_matched.remove(u)
+
+        min_dist = -1
+        min_node = -1
         
-    return g
+        for v in not_matched:
+            if (min_dist > all_dist[u][0][v] or min_dist == -1):
+                min_node = v
+                min_dist = all_dist[u][0][v]
 
-def generate_and_save_graph():
-    # Weighted
-    for nb_node in [5, 10, 20]:
-        G_weighted = create_random_graph(nb_node, is_weighted=True)
-        graph_weighted = utils.RegGraph(G_weighted, is_weighted=True)
+        matched.add(min_node)
+        not_matched.remove(min_node)
 
-        adjmat = sp.sparse.csc_matrix(np.array(graph_weighted.adjmat))
-        sp.sparse.save_npz("example/undirected_weighted_graph_{}.npz".format(nb_node), adjmat)
-    
-    # Unweighted
-    for nb_node in [5, 10, 20]:
-        G_unweighted = create_random_graph(nb_node, is_weighted=False)
-        graph_unweighted = utils.RegGraph(G_unweighted, is_weighted=False)
+        res.append((u, min_node))
 
-        adjmat = sp.sparse.csc_matrix(np.array(graph_unweighted.adjmat))
-        sp.sparse.save_npz("example/undirected_unweighted_graph_{}.npz".format(nb_node), adjmat)
+    return res, all_dist
+
+def deep_copy_with_mask(G):
+    G_copy = []
+    for row in G:
+        tmp = []
+        for elt in row:
+            tmp.append((elt, False))
+        G_copy.append(tmp)
+    return G_copy
+
+def create_augmented_path(G, odd_pairs, all_dist):
+    # augmented_path = {(0, 1): (0,3,1)}       
+    augmented_path = {}
+
+    for (src, dst) in odd_pairs:
+        tmp = dst
+        path = [tmp]
+        while (src != tmp):
+            tmp = all_dist[src][1][tmp]
+            path.insert(0, tmp)
+
+        augmented_path[(src, dst)] = path
+        
+    return augmented_path
