@@ -24,34 +24,64 @@ def count_odd_degree(G):
 class TestDrone(unittest.TestCase):
 
     def test_undirected_weighted_graph_5(self):
-        filename = "undirected-weighted-graph-5.npz"
+        filename = "maps/undirected-weighted-graph-5.npz"
 
         G_sparse = sparse.load_npz(filename)
         G = sparse.csgraph.csgraph_to_dense(G_sparse)
         naive_circuit, new_circuit = drone.run(filename)
 
         self.assertTrue(count_odd_degree(G) > 1, True)
-        self.assertTrue(total_distance(G, new_circuit) < total_distance(G, naive_circuit), True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
 
     def test_undirected_weighted_graph_10(self):
-        filename = "undirected-weighted-graph-10.npz"
+        filename = "maps/undirected-weighted-graph-10.npz"
 
         G_sparse = sparse.load_npz(filename)
         G = sparse.csgraph.csgraph_to_dense(G_sparse)
         naive_circuit, new_circuit = drone.run(filename)
 
         self.assertTrue(count_odd_degree(G) > 1, True)
-        self.assertTrue(total_distance(G, new_circuit) < total_distance(G, naive_circuit), True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
     
     def test_undirected_weighted_graph_20(self):
-        filename = "undirected-weighted-graph-20.npz"
+        filename = "maps/undirected-weighted-graph-20.npz"
 
         G_sparse = sparse.load_npz(filename)
         G = sparse.csgraph.csgraph_to_dense(G_sparse)
         naive_circuit, new_circuit = drone.run(filename)
 
         self.assertTrue(count_odd_degree(G) > 1, True)
-        self.assertTrue(total_distance(G, new_circuit) < total_distance(G, naive_circuit), True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
+
+    def test_undirected_unweighted_graph_5(self):
+        filename = "maps/undirected-unweighted-graph-5.npz"
+
+        G_sparse = sparse.load_npz(filename)
+        G = sparse.csgraph.csgraph_to_dense(G_sparse)
+        naive_circuit, new_circuit = drone.run(filename)
+
+        self.assertTrue(count_odd_degree(G) > 1, True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
+
+    def test_undirected_unweighted_graph_10(self):
+        filename = "maps/undirected-unweighted-graph-10.npz"
+
+        G_sparse = sparse.load_npz(filename)
+        G = sparse.csgraph.csgraph_to_dense(G_sparse)
+        naive_circuit, new_circuit = drone.run(filename)
+
+        self.assertTrue(count_odd_degree(G) > 1, True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
+    
+    def test_undirected_unweighted_graph_20(self):
+        filename = "maps/undirected-unweighted-graph-20.npz"
+
+        G_sparse = sparse.load_npz(filename)
+        G = sparse.csgraph.csgraph_to_dense(G_sparse)
+        naive_circuit, new_circuit = drone.run(filename)
+
+        self.assertTrue(count_odd_degree(G) > 1, True)
+        self.assertTrue(total_distance(G, new_circuit) <= total_distance(G, naive_circuit), True)
 
 if __name__ == '__main__':
     unittest.main()
