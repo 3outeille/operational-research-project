@@ -1,27 +1,18 @@
-from logging import raiseExceptions
-import osmnx as ox
-import networkx as nx
 import numpy as np
-import pandas as pd
-import scipy as sp
-from itertools import combinations
-import random
+from scipy import sparse
 
 import utils
 
 def eulerize_graph(G):
-    # CPP: Chinese Postman problem
 
-    nodes_odd_degree = []
-
+    odd_degree_nodes = []
     for i, row in enumerate(G):
         degree = np.sum(np.where(row > 0, True, False))
         if degree % 2 == 1:
-            nodes_odd_degree.append(i)
+            odd_degree_nodes.append(i)
 
-    odd_pairs, all_dist = utils.compute_odd_pairs(G, nodes_odd_degree)
+    odd_pairs, all_dist = utils.compute_odd_pairs(G, odd_degree_nodes)
     
-    # Step 2.5: Augment the Original Graph
     augmented_path = utils.create_augmented_path(G, odd_pairs, all_dist)
 
     # Add non-exist edge to G (Eulerize).
@@ -71,53 +62,17 @@ def find_eulerian_circuit(G_aug, augmented_path, start):
                     new_circuit.append(dst)
                 is_already_present = False
 
-    return new_circuit
+    return naive_circuit, new_circuit
 
-def drone(filename):
+def run(filename):
     # Load graph
-    G_sparse = sp.sparse.load_npz(filename)
-    G = sp.sparse.csgraph.csgraph_to_dense(G_sparse)
+    G_sparse = sparse.load_npz(filename)
+    G = sparse.csgraph.csgraph_to_dense(G_sparse)
 
     # Eulerize graph
     G_aug, augmented_path = eulerize_graph(G)
     
     # Find eulerian circuit
-    new_circuit = find_eulerian_circuit(G_aug, augmented_path, start=0)
+    naive_circuit, new_circuit = find_eulerian_circuit(G_aug, augmented_path, start=0)
 
-    print(new_circuit)
-
-
-drone("undirected-weighted-graph-5.npz")
-
-
-"""
-##############
-#    DRAFT 
-##############
-
-all_dist[key][value]
-                `-> (dict: all_shortest_path, predecessors: dict)
-
-
-# Add non-exist edge to G
-for u,v in augmented_path:
-    if G_copy[u][v][0] == 0:
-        G_copy[u][v] = (-all_dist[u][0][v], False) # set non-existing edge to negative
-    else:
-        G_copy[u][v] = (G_copy[u][v][0], True)
-
-naive_circuit = find_euler_circuit(G) # [0, 1, 2, 0, 1, 3]
-
-new_circuit = []
-
-# Replace non-existing path with existing path.
-
-for i in range(len(naive_circuit) - 1):
-    pair = ([naive_circuit[i]], [naive_circuit[i + 1])
-    if (G[pair[0]][pair[1]] < 0):
-        new_circuit.append(**augmented_path[pair])
-    else
-        new_circuit.append(pair)
-
-circuit = [(0, 3, 1), 2, (0, 3, 1), 3]
-"""
+    return naive_circuit, new_circuit

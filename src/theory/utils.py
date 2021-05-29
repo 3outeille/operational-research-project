@@ -1,12 +1,10 @@
-from networkx.algorithms.shortest_paths.unweighted import predecessor
-import numpy as np
-import scipy as sp
+from scipy import sparse
 
 def get_shortest_path_distances(graph):
     all_dist = {}
 
     for node in range(len(graph)):
-        dist_matrix, predecessors = sp.sparse.csgraph.dijkstra(csgraph=graph, directed=False, indices=node, return_predecessors=True)
+        dist_matrix, predecessors = sparse.csgraph.dijkstra(csgraph=graph, directed=False, indices=node, return_predecessors=True)
         
         dist = {}
         for i, shortest_path in enumerate(dist_matrix):
@@ -21,8 +19,6 @@ def compute_odd_pairs(graph, odd_nodes):
     not_matched = set(odd_nodes)
     all_dist = get_shortest_path_distances(graph)
     res = []
-
-    print("let's match")
 
     for u in odd_nodes:
         if (u in matched):
