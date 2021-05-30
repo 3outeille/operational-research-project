@@ -78,7 +78,7 @@ def create_random_graph(n, p, is_weighted=False, is_directed=False):
 #         MAIN
 ###########################
 
-def generate_random_graph(nb_node, p=0.8, is_weighted=False, is_directed=False):
+def generate_random_graph(nb_node, p=0.5, is_weighted=False, is_directed=False):
     """
         Generating a random undirected weighted/unweighted graph.
     """
@@ -112,4 +112,4 @@ def generate_downtown_montreal_graph():
 ox.config(log_console=True, all_oneway=True)
 #generate_montreal_graph()
 #generate_downtown_montreal_graph()
-generate_random_graph(nb_node=20, is_weighted=False, is_directed=True)
+generate_random_graph(nb_node=5, is_weighted=False, is_directed=True)
