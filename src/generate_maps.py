@@ -44,23 +44,28 @@ class RegGraph:
                     adjmat[src][dst] = 1
         return adjmat
 
-def create_random_graph(n, p, is_weighted=False):
+def add_edge(E, p, is_weighted, combi):
+    a = random.random()
+    if a < p:
+        if is_weighted:
+            w = random.randint(1, 100)
+            E.add((*combi, w))
+        else:
+            E.add(combi)
+
+def create_random_graph(n, p, is_weighted=False, is_directed=False):
     """
         Generating a random undirected weighted/unweighted graph.
     """
     V = set([v for v in range(n)])
     E = set()
-    for combination in combinations(V, 2):
-        a = random.random()
-        if a < p:
-            if is_weighted:
-                w = random.randint(1, 100)
-                E.add((*combination, w))
-            else:
-                E.add(combination)
+    for combi in combinations(V, 2):
+        add_edge(E, p, is_weighted, combi)
+        if is_directed:
+            add_edge(E, p, is_weighted, (combi[1], combi[0]))
 
-    g = nx.Graph()
-    g.add_nodes_from(V)
+    g = nx.DiGraph() if is_directed else nx.Graph()
+    # g.add_nodes_from(V) # add_edges automatically adds nodes
     
     if is_weighted:
         g.add_weighted_edges_from(E)
@@ -73,18 +78,19 @@ def create_random_graph(n, p, is_weighted=False):
 #         MAIN
 ###########################
 
-def generate_random_graph(nb_node, p=0.8, is_weighted=False):
+def generate_random_graph(nb_node, p=0.8, is_weighted=False, is_directed=False):
     """
         Generating a random undirected weighted/unweighted graph.
     """
-    G = create_random_graph(n=nb_node, p=p, is_weighted=is_weighted)
+    G = create_random_graph(n=nb_node, p=p, is_weighted=is_weighted, is_directed=is_directed)
     G_reg = RegGraph(G, is_weighted=is_weighted)
     G = sp.sparse.csc_matrix(np.array(G_reg.adjmat))
 
+    filename = "directed" if is_directed else "undirected"
     if is_weighted:
-        sp.sparse.save_npz("undirected-weighted-graph-{}.npz".format(nb_node), G)
+        sp.sparse.save_npz(filename + "-weighted-graph-{}.npz".format(nb_node), G)
     else:
-        sp.sparse.save_npz("undirected-unweighted-graph-{}.npz".format(nb_node), G)
+        sp.sparse.save_npz(filename + "-unweighted-graph-{}.npz".format(nb_node), G)
 
 def generate_montreal_graph():
     MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
@@ -106,4 +112,4 @@ def generate_downtown_montreal_graph():
 ox.config(log_console=True, all_oneway=True)
 #generate_montreal_graph()
 #generate_downtown_montreal_graph()
-generate_random_graph(nb_node=5, is_weighted=True)
+generate_random_graph(nb_node=20, is_weighted=False, is_directed=True)

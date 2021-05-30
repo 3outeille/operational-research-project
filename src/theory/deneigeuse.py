@@ -3,17 +3,19 @@ from scipy import sparse
 
 import utils
 
-def get_odd_degree_nodes(G):
-    odd_degree_nodes = []
-    for i, row in enumerate(G):
-        degree = np.sum(np.where(row > 0, True, False))
-        if degree % 2 == 1:
-            odd_degree_nodes.append(i)
-
-    return odd_degree_nodes
+def get_odd_degree_nodes_directed(G):
+    n = len(G)
+    degree = [0 for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if (G[i][j] > 0):
+                degree[j] += 1
+                degree[i] -= 1
+    res = np.nonzero(degree)
+    return res
 
 def eulerize_graph(G):
-    odd_degree_nodes = get_odd_degree_nodes(G)
+    odd_degree_nodes = get_odd_degree_nodes_directed(G)
     odd_pairs, all_dist = utils.compute_odd_pairs(G, odd_degree_nodes)
     
     augmented_path = utils.create_augmented_path(G, odd_pairs, all_dist)
