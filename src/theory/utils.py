@@ -1,4 +1,25 @@
 from scipy import sparse
+import numpy as np
+
+def count_odd_degree(G):
+    res = 0
+    for i, row in enumerate(G):
+        degree = np.sum(np.where(row > 0, True, False))
+        if degree % 2 == 1:
+            res += 1
+    return res
+
+def count_odd_degree_aug(G):
+    res = 0
+    for row in G:
+        degree = 0
+        for weight, is_double_edge in row:
+            if weight > 0:
+                degree += 1
+            if is_double_edge:
+                degree += 1
+        res += 1 if (degree % 2 == 1) else 0
+    return res
 
 def get_shortest_path_distances(graph):
     all_dist = {}

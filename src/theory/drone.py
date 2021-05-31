@@ -1,4 +1,6 @@
+from hashlib import new
 import numpy as np
+from numpy.core.defchararray import count
 from scipy import sparse
 
 import utils
@@ -21,20 +23,21 @@ def eulerize_graph(G):
     # Add non-exist edge to G (Eulerize).
     # (However, we can only go through the edge. What if we have to pass more than 2 times ? counter instead of boolean may be better ?)
     G_aug = utils.deep_copy_with_mask(G)
+
     for u,v in augmented_path:
         G_aug[u][v] = (G_aug[u][v][0], True)
+        G_aug[v][u] = (G_aug[v][u][0], True)
 
     return G_aug, augmented_path
-
-def find_eulerian_circuit(G_aug, augmented_path, start):
     
+def find_eulerian_circuit(G_aug, augmented_path, start):
+
     def find_eulerian_circuit_aux(naive_circuit, G_aug, start):
         for i in range(len(G_aug)):
-            
-            if G_aug[start][i][0] > 0:
-                if G_aug[start][i][1]: # Double edge
+
+            if G_aug[start][i][0] > 0 or G_aug[start][i][1] == True:
+                if G_aug[start][i][1]: # Double edge or edge doesn't exist
                     G_aug[start][i] = (G_aug[start][i][0], False)
-                elif G_aug[i][start][1]:
                     G_aug[i][start] = (G_aug[i][start][0], False)
                 else:                  # Only one edge
                     G_aug[start][i] = (0, False)
@@ -45,9 +48,11 @@ def find_eulerian_circuit(G_aug, augmented_path, start):
         return naive_circuit
 
     naive_circuit = []
-    naive_circuit =  find_eulerian_circuit_aux(naive_circuit, G_aug, start)
+    G_aug_copy = [row[:] for row in G_aug] # Deep copy
+    naive_circuit =  find_eulerian_circuit_aux(naive_circuit, G_aug_copy, start)
 
     # Replace non-existing path with existing path.
+    naive_circuit = naive_circuit[::-1]
     new_circuit = []
     is_already_present = False
     for i in range(len(naive_circuit) - 1):
@@ -61,11 +66,12 @@ def find_eulerian_circuit(G_aug, augmented_path, start):
             if not is_already_present:
                 new_circuit.append(src)
             else:
-                if (i == len(naive_circuit) - 2):
-                    new_circuit.append(dst)
                 is_already_present = False
 
-    return naive_circuit, new_circuit
+            if (i == len(naive_circuit) - 2):
+                new_circuit.append(dst)
+
+    return new_circuit
 
 def run(filename):
     # Load graph
@@ -74,8 +80,8 @@ def run(filename):
 
     # Eulerize graph
     G_aug, augmented_path = eulerize_graph(G)
-    
-    # Find eulerian circuit
-    naive_circuit, new_circuit = find_eulerian_circuit(G_aug, augmented_path, start=0)
 
-    return naive_circuit, new_circuit
+    # Find eulerian circuit
+    new_circuit = find_eulerian_circuit(G_aug, augmented_path, start=0)
+    
+    return G_aug, new_circuit
