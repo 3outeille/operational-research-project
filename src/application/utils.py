@@ -1,90 +1,26 @@
 import networkx as nx
 
 
-def get_weight(u, v, d):
-    return d[0]['length']
-
-def get_shortest_path_distances(graph):
-    dist = {}
-
-    for node in graph.nodes():
-        print(node)
-        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=get_weight)
-
-    return dist
-
-def get_shortest_paths_distances_pairs(graph, pairs):
-    """
-        Computes shortest distance between each pair of nodes in a graph.
-        Returns a dictionary keyed on node pairs (tuples).
-    """
-    
-    dist = get_shortest_path_distances(graph)
-
-    distances = {}
-    
-    for pair in pairs:
-        distances[pair] = dist[pair[0]][pair[1]]
-    return distances
-
-    # distances = {}
-    # for pair in pairs:
-    #     distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weigh)
-    # return distances
-
-def get_shortest_path_distances(graph):
-    dist = {}
-
-    for node in graph.nodes():
-        print(node)
-        dist[node] = nx.single_source_dijkstra_path_length(graph, node, weight=get_weight)
-
-    return dist
-
 def compute_odd_pairs(graph, odd_nodes):
+    odd_nodes_set = set(odd_nodes)
     matched = set()
-    not_matched = set(odd_nodes)
-    dist = get_shortest_path_distances(graph)
     res = []
 
-    print("let's match")
-
-    for u in odd_nodes:
-        if (u in matched):
+    for i in odd_nodes:
+        if i in matched:
             continue
 
-        matched.add(u)
-        not_matched.remove(u)
+        matched.add(i)
 
-        min_dist = -1
-        min_node = -1
-        
-        for v in not_matched:
-            if (min_dist > dist[u][v] or min_dist == -1):
-                min_node = v
-                min_dist = dist[u][v]
+        for _, j in nx.bfs_edges(graph, i):
+            if j in odd_nodes_set and j not in matched:
 
-        matched.add(min_node)
-        not_matched.remove(min_node)
-
-        res.append((u, min_node))
+                matched.add(j)
+                res.append((i, j))
+                break
 
     return res
 
-def create_complete_graph(pair_weights, flip_weights=True):
-    """
-    Create a completely connected graph using a list of vertex pairs and the shortest path distances between them
-    Parameters:
-        pair_weights: list[tuple] from the output of get_shortest_paths_distances
-        flip_weights: Boolean. Should we negate the edge attribute in pair_weights?
-    """
-    g = nx.Graph()
-    for k, v in pair_weights.items():
-        wt_i = - v if flip_weights else v
-        #BECAREFUL: pass argument by argument instead of dict.
-        # DOCUMENTATION SUCK ASSES.
-        g.add_edge(k[0], k[1], distance=v, weight=wt_i)
-    return g
 
 def add_augmenting_path_to_graph(graph, min_weight_pairs):
     """
@@ -101,21 +37,24 @@ def add_augmenting_path_to_graph(graph, min_weight_pairs):
     for pair in min_weight_pairs:
         graph_aug.add_edge(pair[0],
                            pair[1],
-                           **{'length': nx.dijkstra_path_length(graph, pair[0], pair[1], weight="length"),
-                                      'from': 'augmented'}
-                          )
+                           length=nx.dijkstra_path_length(
+                               graph, pair[0], pair[1], weight="length"),
+                           augmented=True
+                           )
     return graph_aug
+
 
 def create_eulerian_circuit(graph_augmented, graph_original, starting_node=None):
     """Create the eulerian path using only edges from the original graph."""
     euler_circuit = []
-    naive_circuit = list(nx.eulerian_circuit(graph_augmented, source=starting_node))
+    naive_circuit = list(nx.eulerian_circuit(
+        graph_augmented, source=starting_node))
 
     for edge in naive_circuit:
         edge_data = graph_augmented.get_edge_data(edge[0], edge[1])
 
         for k in edge_data.keys():
-            if edge_data[k]['from'] != 'augmented':
+            if not 'augmented' in edge_data[k]:
                 # If `edge` exists in original graph, grab the edge attributes and add to eulerian circuit.
                 edge_att = graph_original[edge[0]][edge[1]]
                 euler_circuit.append((edge[0], edge[1], edge_att))
@@ -124,14 +63,11 @@ def create_eulerian_circuit(graph_augmented, graph_original, starting_node=None)
                 aug_path = nx.shortest_path(graph_original, edge[0], edge[1], weight='length')
                 aug_path_pairs = list(zip(aug_path[:-1], aug_path[1:]))
 
-                print('Filling in edges for augmented edge: {}'.format(edge))
-                print('Augmenting path: {}'.format(' => '.join(str(x) for x in aug_path)))
-                print('Augmenting path pairs: {}\n'.format(aug_path_pairs))
-
                 # If `edge` does not exist in original graph, find the shortest path between its nodes and
                 #  add the edge attributes for each link in the shortest path.
                 for edge_aug in aug_path_pairs:
                     edge_aug_att = graph_original[edge_aug[0]][edge_aug[1]]
-                    euler_circuit.append((edge_aug[0], edge_aug[1], edge_aug_att))
+                    euler_circuit.append(
+                        (edge_aug[0], edge_aug[1], edge_aug_att))
                 break
     return euler_circuit

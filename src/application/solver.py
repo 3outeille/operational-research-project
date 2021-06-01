@@ -13,22 +13,8 @@ def eulerize_graph(MG):
 
     # CPP Step 1: Find Nodes of Odd Degree
     nodes_odd_degree = [v for v, d in MG.degree() if d % 2 == 1]
-    print('combinations')
 
-    # CPP Step 2: Find Min Distance Pairs
-    # Step 2.1: Compute Node Pairs/Couple
-    # odd_node_pairs = list(itertools.combinations(nodes_odd_degree, 2))
-    # print(len(odd_node_pairs))
-    # print('get_shortest_paths_distances')
-
-    # Step 2.2: Compute Shortest Paths between Node Pairs/Couple
-    # weight = lambda u, v, d: print(d)
-    # weight = lambda u, v, d: print(d[0][])
-    # odd_node_pairs_shortest_paths = utils.get_shortest_paths_distances_pairs(MG, odd_node_pairs)
-    # print("create_complete_graph")
-
-    # Step 2.3: Create Complete Graph
-    #g_odd_complete = utils.create_complete_graph(odd_node_pairs_shortest_paths, flip_weights=True)
+    print(len(nodes_odd_degree))
 
     print("max_weight_matching")
     # Step 2.4: Compute Minimum Weight Matching

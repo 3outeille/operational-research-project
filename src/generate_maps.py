@@ -110,6 +110,8 @@ def generate_downtown_montreal_graph():
     ox.io.save_graphml(MG, 'montreal-downtown-graph.graphml')
     
 ox.config(log_console=True, all_oneway=True)
-#generate_montreal_graph()
-#generate_downtown_montreal_graph()
+generate_montreal_graph()
+generate_downtown_montreal_graph()
 generate_random_graph(nb_node=5, is_weighted=False, is_directed=True)
+generate_random_graph(nb_node=10, is_weighted=False, is_directed=False)
+generate_random_graph(nb_node=50, is_weighted=True, is_directed=True)
