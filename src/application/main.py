@@ -17,8 +17,8 @@ def main():
     # # Save graph
     # ox.io.save_graphml(MG, 'montreal-centreville-Graph.graphml')
     # Load graph
-    # MDG = ox.io.load_graphml('../theory/maps/montreal-graph.graphml', edge_dtypes={"oneway": str})
-    MDG = ox.io.load_graphml('../theory/maps/montreal-downtown-graph.graphml', edge_dtypes={"oneway": str})
+    MDG = ox.io.load_graphml('../theory/maps/montreal-graph.graphml', edge_dtypes={"oneway": str})
+    # MDG = ox.io.load_graphml('../theory/maps/montreal-downtown-graph.graphml', edge_dtypes={"oneway": str})
 
     # create network from that bounding box
     #north, east = 45.512984, -73.553328
