@@ -98,6 +98,11 @@ def generate_montreal_graph():
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
     ox.io.save_graphml(MG, 'montreal-graph.graphml')
 
+def generate_montreal_di_graph():
+    MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
+    MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
+    ox.io.save_graphml(MDG, 'montreal-digraph.graphml')
+
 def generate_downtown_montreal_graph():
     # define a bounding box Centre-ville, Montréal, QC, Canada
     north, east = 45.512984, -73.553328
@@ -109,6 +114,16 @@ def generate_downtown_montreal_graph():
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
     ox.io.save_graphml(MG, 'montreal-downtown-graph.graphml')
     
+def generate_downtown_montreal_di_graph():
+    # define a bounding box Centre-ville, Montréal, QC, Canada
+    north, east = 45.512984, -73.553328
+    south, west = 45.496527, -73.581779
+
+    # create network from that bounding box
+    MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
+    MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
+    ox.io.save_graphml(MDG, 'montreal-downtown-digraph.graphml')
+
 ox.config(log_console=True, all_oneway=True)
 generate_montreal_graph()
 generate_downtown_montreal_graph()

@@ -5,6 +5,8 @@ import pandas as pd
 import utils
 
 def eulerize_graph(MG):
+    if (MG.order() < 500):
+        return nx.algorithms.euler.eulerize(MG)
     # Define node positions data structure (dict) for plotting
     # node_positions = {node[0]: (node[1]['x'], node[1]['y']) for node in MG.nodes(data=True)}
 
