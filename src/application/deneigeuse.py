@@ -1,3 +1,4 @@
+import concurrent.futures as cf
 import osmnx as ox
 import networkx as nx
 
@@ -62,6 +63,32 @@ def compute_odd_pairs_directed(graph, in_degree, out_degree):
     return odd_pairs
 
 
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def task(src_indexes, starting_nodes, graph, ending_nodes, ending_nodes_dict):
+    res = dict()
+
+    for src_index in src_indexes:
+        src_node = starting_nodes[src_index]
+
+        full_dist = nx.single_source_dijkstra_path_length(
+            graph, src_node, weight=lambda u, v, d: d[0]['length'])
+
+        src_dist = [None] * len(ending_nodes)
+
+        for dst_node in full_dist.keys():
+            if dst_node in ending_nodes_dict:
+                for dst_index in ending_nodes_dict[dst_node]:
+                    src_dist[dst_index] = full_dist[dst_node]
+
+        res[src_index] = src_dist
+
+    return res
+
+
 def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
     starting_nodes = []
     ending_nodes = []
@@ -82,22 +109,18 @@ def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
     # Compute all dijkstras between starting & ending nodes
     dist = [[None] * len(ending_nodes) for _ in starting_nodes]
 
-    for src_index, src_node in enumerate(starting_nodes):
-        if src_index % 100 == 0:
-            print('{0:.2f} %'.format(src_index * 100 / len(starting_nodes)))
+    with cf.ProcessPoolExecutor() as executor:
 
-        full_dist = nx.single_source_dijkstra_path_length(
-            graph, src_node, weight=lambda u, v, d: d[0]['length'])
+        n = len(starting_nodes)
+        futures = {executor.submit(task, src_indexes, starting_nodes, graph,
+                                   ending_nodes, ending_nodes_dict) for src_indexes in chunks(range(n), n // 16)}
 
-        for dst_node in full_dist.keys():
-            if dst_node in ending_nodes_dict:
-                for dst_index in ending_nodes_dict[dst_node]:
-                    dist[src_index][dst_index] = full_dist[dst_node]
+        for future in cf.as_completed(futures):
+            for src_index, src_dist in future.result().items():
+                dist[src_index] = src_dist
 
     print('Matching nodes...')
     matching = sp.optimize.linear_sum_assignment(dist)
-
-    print('Matched.')
 
     odd_pairs = []
 
