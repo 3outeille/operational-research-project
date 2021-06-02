@@ -1,6 +1,8 @@
 import osmnx as ox
 import networkx as nx
 
+import scipy as sp
+
 
 def get_degree_nodes_directed(G):
 
@@ -60,6 +62,52 @@ def compute_odd_pairs_directed(graph, in_degree, out_degree):
     return odd_pairs
 
 
+def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
+    starting_nodes = []
+    ending_nodes = []
+    for node in graph.nodes():
+        diff = out_degree[node] - in_degree[node]
+        for _ in range(diff):
+            ending_nodes.append(node)
+        for _ in range(-diff):
+            starting_nodes.append(node)
+
+    ending_nodes_dict = {}
+    for index, node in enumerate(ending_nodes):
+        if node in ending_nodes_dict:
+            ending_nodes_dict[node].append(index)
+        else:
+            ending_nodes_dict[node] = [index]
+
+    # Compute all dijkstras between starting & ending nodes
+    dist = [[None] * len(ending_nodes) for _ in starting_nodes]
+
+    for src_index, src_node in enumerate(starting_nodes):
+        if src_index % 100 == 0:
+            print('{0:.2f} %'.format(src_index * 100 / len(starting_nodes)))
+
+        full_dist = nx.single_source_dijkstra_path_length(
+            graph, src_node, weight=lambda u, v, d: d[0]['length'])
+
+        for dst_node in full_dist.keys():
+            if dst_node in ending_nodes_dict:
+                for dst_index in ending_nodes_dict[dst_node]:
+                    dist[src_index][dst_index] = full_dist[dst_node]
+
+    print('Matching nodes...')
+    matching = sp.optimize.linear_sum_assignment(dist)
+
+    print('Matched.')
+
+    odd_pairs = []
+
+    for src_index, dst_index in zip(*matching):
+        odd_pairs.append(
+            (starting_nodes[src_index], ending_nodes[dst_index], 1))
+
+    return odd_pairs
+
+
 def add_augmenting_path(graph, odd_pairs):
     for src, dst, nb_edges in odd_pairs:
         path_nodes = nx.shortest_path(graph, src, dst)
@@ -96,7 +144,8 @@ def eulerize_directed_graph(MDG):
     # print(nx.algorithms.components.is_strongly_connected(MDG))
 
     # Compute odd_pairs
-    odd_pairs = compute_odd_pairs_directed(MDG, in_degree, out_degree)
+    # odd_pairs = compute_odd_pairs_directed(MDG, in_degree, out_degree)
+    odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
 
     # STEP 3
     # Compute augmented graph : add all virtual edges
@@ -110,6 +159,8 @@ def main():
     print('Loading graph...')
     MDG = ox.io.load_graphml(
         '../theory/maps/montreal-digraph.graphml', edge_dtypes={"oneway": str})
+    # MDG = ox.io.load_graphml(
+    #     '../theory/maps/montreal-downtown-digraph.graphml', edge_dtypes={"oneway": str})
 
     print('Graph loaded, getting largest connected component...')
     MDG = get_strongly_connected_component(MDG)
@@ -126,7 +177,7 @@ def main():
     circuit_length = sum(nx.get_edge_attributes(MDG, 'length').values())
 
     print('Circuit length: {0:.2f}'.format(circuit_length))
-    print('Retrace ratio: {0:.2f}\n'.format(circuit_length/map_length))
+    print('Retrace ratio: {0:.2f}\n'.format(circuit_length / map_length))
 
 
 if __name__ == '__main__':
