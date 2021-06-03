@@ -40,7 +40,9 @@ def discard_relou_edges(graph, in_degree, out_degree):
                 break
 
 
-def compute_odd_pairs_directed(graph, in_degree, out_degree):
+def compute_odd_pairs_directed_naive(graph, in_degree, out_degree):
+    print('Eulerization...')
+
     odd_pairs = []
 
     for i in graph.nodes():
@@ -68,7 +70,7 @@ def chunks(lst, n):
         yield lst[i:i + n]
 
 
-def task(src_indexes, starting_nodes, graph, ending_nodes, ending_nodes_dict):
+def compute_dijkstra_batch(src_indexes, starting_nodes, graph, ending_nodes, ending_nodes_dict):
     res = dict()
 
     for src_index in src_indexes:
@@ -90,6 +92,7 @@ def task(src_indexes, starting_nodes, graph, ending_nodes, ending_nodes_dict):
 
 
 def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
+    print('Eulerization (multithreaded)...')
     starting_nodes = []
     ending_nodes = []
     for node in graph.nodes():
@@ -98,6 +101,9 @@ def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
             ending_nodes.append(node)
         for _ in range(-diff):
             starting_nodes.append(node)
+
+    assert len(starting_nodes) == len(ending_nodes)
+    if starting_nodes == 0: return
 
     ending_nodes_dict = {}
     for index, node in enumerate(ending_nodes):
@@ -112,7 +118,7 @@ def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
     with cf.ProcessPoolExecutor() as executor:
 
         n = len(starting_nodes)
-        futures = {executor.submit(task, src_indexes, starting_nodes, graph,
+        futures = {executor.submit(compute_dijkstra_batch, src_indexes, starting_nodes, graph,
                                    ending_nodes, ending_nodes_dict) for src_indexes in chunks(range(n), n // 16)}
 
         for future in cf.as_completed(futures):
@@ -150,28 +156,15 @@ def get_strongly_connected_component(MDG):
 
 
 def eulerize_directed_graph(MDG):
-    # Define node positions data structure (dict) for plotting
-    # node_positions = {node[0]: (node[1]['x'], node[1]['y']) for node in MG.nodes(data=True)}
-
-    # STEP 1
-    # Retirer impasses et routes chiantes peu enneigées ==> OPTI
-    # discard_isolated_nodes(MDG, in_degree, out_degree)
-
-    # STEP 2
     # Compute odd_nodes (return in_degree and out_degree)
     in_degree, out_degree = get_degree_nodes_directed(MDG)
 
-    # Remove relou edges
-    # discard_relou_edges(MDG, in_degree, out_degree)
-
-    # print(nx.algorithms.components.is_strongly_connected(MDG))
-
     # Compute odd_pairs
-    # odd_pairs = compute_odd_pairs_directed(MDG, in_degree, out_degree)
+    # odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
     odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
 
     # STEP 3
-    # Compute augmented graph : add all virtual edges
+    # Compute augmented graph : add all virtual edges to graph
     add_augmenting_path(MDG, odd_pairs)
 
     if not nx.is_eulerian(MDG):
@@ -180,10 +173,9 @@ def eulerize_directed_graph(MDG):
 
 def main():
     print('Loading graph...')
-    MDG = ox.io.load_graphml(
-        '../theory/maps/montreal-digraph.graphml', edge_dtypes={"oneway": str})
-    # MDG = ox.io.load_graphml(
-    #     '../theory/maps/montreal-downtown-digraph.graphml', edge_dtypes={"oneway": str})
+
+    MDG = ox.graph_from_place('Montreal, Canada', network_type='drive')
+    MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
 
     print('Graph loaded, getting largest connected component...')
     MDG = get_strongly_connected_component(MDG)
@@ -191,7 +183,6 @@ def main():
     map_length = sum(nx.get_edge_attributes(MDG, 'length').values())
     print('Map length: {0:.2f}'.format(map_length))
 
-    print('Eulerization...')
     eulerize_directed_graph(MDG)
 
     print('Computing path...')
