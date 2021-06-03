@@ -1,6 +1,7 @@
 import concurrent.futures as cf
 import osmnx as ox
 import networkx as nx
+from ipyleaflet import *
 
 import scipy as sp
 
@@ -160,8 +161,8 @@ def eulerize_directed_graph(MDG):
     in_degree, out_degree = get_degree_nodes_directed(MDG)
 
     # Compute odd_pairs
-    # odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
-    odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
+    odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
+    # odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
 
     # STEP 3
     # Compute augmented graph : add all virtual edges to graph
@@ -193,6 +194,26 @@ def main():
     print('Circuit length: {0:.2f}'.format(circuit_length))
     print('Retrace ratio: {0:.2f}\n'.format(circuit_length / map_length))
 
+    res = [elt[0] for elt in eulerian_path]
+    node_dict = dict(MDG.nodes(data=True))
+    locations = [[node_dict[node]['y'], node_dict[node]['x']] for node in res]
+
+    center = (45.5581645,-73.6788509) # Location of Montreal
+
+    ant_path = AntPath(
+            locations=locations,
+            dash_array=[1, 10],
+            delay=500,
+            color='#7590ba',
+            weight=1,
+            pulse_color='#3f6fba'
+        )
+
+    m = Map(center=center, zoom=10.5)
+    m.layout.width = '50%'
+    m.layout.height = '300px'
+    m.add_layer(ant_path)
+    m.save("my_map_2.html")
 
 if __name__ == '__main__':
     main()
