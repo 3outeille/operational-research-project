@@ -4,6 +4,7 @@
 
 # Setup
 
+This script will configure the environment and also run the demo. The interactive visualization of the circuit will be generated as an HTML file. Feel free to open them with your favorite browser.
 ```
 source ./demo.sh
 ```
@@ -18,5 +19,5 @@ source ./demo.sh
 * `README.md`
 * `synthesis.pdf` : summary of the team's reflections 
 * `LINKS` : link to the video presentation of the solution
-* `source.sh` : a script running a demo of the solution 
+* `demo.sh` : a script running a demo of the solution 
 ```

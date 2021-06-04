@@ -1,4 +1,3 @@
-from hashlib import new
 import numpy as np
 from numpy.core.defchararray import count
 from scipy import sparse
