@@ -5,7 +5,7 @@
 # Setup
 
 ```
-source demo.sh
+source ./demo.sh
 ```
 
 # Architecture

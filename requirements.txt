@@ -1,6 +1,6 @@
 # install Ero as top-level editable package.
 -e .
-imageio
+ipyleaflet
 ipykernel
 jupyter
 scipy
