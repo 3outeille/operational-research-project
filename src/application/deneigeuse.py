@@ -148,7 +148,7 @@ def eulerize_directed_graph(MDG, algo):
     if not nx.is_eulerian(MDG):
         raise Exception("not eulerian")
 
-def run(map, algo):
+def run(map, algo, nb_deneigeuses):
 
     print('Downloading graph...')
 
@@ -175,4 +175,4 @@ def run(map, algo):
     print('Circuit length: {0:.2f}'.format(circuit_length))
     print('Retrace ratio: {0:.2f}\n'.format(circuit_length / map_length))
 
-    utils.generate_visualization(map, MDG, eulerian_path)
+    utils.generate_visualization(map, MDG, eulerian_path, nb_deneigeuses)

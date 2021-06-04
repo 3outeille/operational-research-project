@@ -30,9 +30,11 @@ echo
 echo "Déneigeuse demo..."
 echo "map - Montréal"
 echo "algo - First match"
-python src/application/solver.py --mode=deneigeuse --map=montreal_di_graph --algo=first_match
+echo "nb déneigeuse - 4"
+python src/application/solver.py --mode=deneigeuse --map=montreal_di_graph --algo=first_match --nb_deneigeuse=4
 
 echo
 echo "map - Montréal"
 echo "algo - Best match"
-python src/application/solver.py --mode=deneigeuse --map=montreal_di_graph --algo=best_match
+echo "nb déneigeuse - 10"
+python src/application/solver.py --mode=deneigeuse --map=montreal_di_graph --algo=best_match --nb_deneigeuse=10
