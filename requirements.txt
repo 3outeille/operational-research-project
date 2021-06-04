@@ -1,7 +1,8 @@
-descartes
+# install Ero as top-level editable package.
+-e .
 imageio
 ipykernel
 jupyter
+scipy
 scikit-learn
-streamlit
 osmnx

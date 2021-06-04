@@ -96,12 +96,14 @@ def generate_montreal_graph():
     MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
-    ox.io.save_graphml(MG, 'montreal-graph.graphml')
+    #ox.io.save_graphml(MG, 'montreal-graph.graphml')
+    return MG
 
 def generate_montreal_di_graph():
     MDG = ox.graph_from_place("Montréal, QC, Canada", network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
-    ox.io.save_graphml(MDG, 'montreal-digraph.graphml')
+    #ox.io.save_graphml(MDG, 'montreal-digraph.graphml')
+    return MDG
 
 def generate_downtown_montreal_graph():
     # define a bounding box Centre-ville, Montréal, QC, Canada
@@ -112,7 +114,8 @@ def generate_downtown_montreal_graph():
     MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
     MG = ox.utils_graph.get_undirected(MDG) # MultiDiGraph -> MultiGraph
-    ox.io.save_graphml(MG, 'montreal-downtown-graph.graphml')
+    #ox.io.save_graphml(MG, 'montreal-downtown-graph.graphml')
+    return MG
     
 def generate_downtown_montreal_di_graph():
     # define a bounding box Centre-ville, Montréal, QC, Canada
@@ -122,11 +125,14 @@ def generate_downtown_montreal_di_graph():
     # create network from that bounding box
     MDG = ox.graph_from_bbox(north, south, east, west, network_type="drive")
     MDG = nx.convert_node_labels_to_integers(MDG) # Use label to deal with node id
-    ox.io.save_graphml(MDG, 'montreal-downtown-digraph.graphml')
+    #ox.io.save_graphml(MDG, 'montreal-downtown-digraph.graphml')
+    return MDG
 
-ox.config(log_console=True, all_oneway=True)
-generate_montreal_graph()
-generate_downtown_montreal_graph()
-generate_random_graph(nb_node=5, is_weighted=False, is_directed=True)
-generate_random_graph(nb_node=10, is_weighted=False, is_directed=False)
-generate_random_graph(nb_node=50, is_weighted=True, is_directed=True)
+# ox.config(log_console=True, all_oneway=True)
+#generate_montreal_graph()
+# generate_downtown_montreal_graph()
+# generate_montreal_di_graph()
+# generate_downtown_montreal_di_graph()
+#generate_random_graph(nb_node=5, is_weighted=False, is_directed=True)
+#generate_random_graph(nb_node=10, is_weighted=False, is_directed=False)
+#generate_random_graph(nb_node=50, is_weighted=True, is_directed=True)
