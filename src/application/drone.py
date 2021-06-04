@@ -24,17 +24,7 @@ def compute_odd_pairs(graph, odd_nodes):
 
     return res
 
-
 def add_augmenting_path_to_graph(graph, min_weight_pairs):
-    """
-    Add the min weight matching edges to the original graph
-    Parameters:
-        graph: NetworkX graph (original graph from trailmap)
-        min_weight_pairs: list[tuples] of node pairs from min weight matching
-    Returns:
-        augmented NetworkX graph
-    """
-
     # We need to make the augmented graph a MultiGraph so we can add parallel edges
     graph_aug = nx.MultiGraph(graph.copy())
     for pair in min_weight_pairs:
@@ -48,7 +38,6 @@ def add_augmenting_path_to_graph(graph, min_weight_pairs):
 
 
 def create_eulerian_circuit(graph_augmented, graph_original, starting_node=None):
-    """Create the eulerian path using only edges from the original graph."""
     euler_circuit = []
     naive_circuit = list(nx.eulerian_circuit(
         graph_augmented, source=starting_node))
@@ -79,25 +68,17 @@ def create_eulerian_circuit(graph_augmented, graph_original, starting_node=None)
 def eulerize_graph(MG):
     if (MG.order() < 500):
         return nx.algorithms.euler.eulerize(MG)
-    # Define node positions data structure (dict) for plotting
-    # node_positions = {node[0]: (node[1]['x'], node[1]['y']) for node in MG.nodes(data=True)}
-
+  
     print('nodes_odd_degree')
-    # CPP: Chinese Postman problem
-
-    # CPP Step 1: Find Nodes of Odd Degree
     nodes_odd_degree = [v for v, d in MG.degree() if d % 2 == 1]
 
     print(len(nodes_odd_degree))
 
     print("max_weight_matching")
-    # Step 2.4: Compute Minimum Weight Matching
     odd_matching_dupes = compute_odd_pairs(MG, nodes_odd_degree)
-    # odd_matching_dupes = nx.algorithms.max_weight_matching(g_odd_complete, True)
     odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in odd_matching_dupes]))
 
     print("add_augmenting_path_to_graph")
-    # Step 2.5: Augment the Original Graph
     G_aug = add_augmenting_path_to_graph(MG, odd_matching)
 
     return G_aug

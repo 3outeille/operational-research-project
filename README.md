@@ -26,6 +26,7 @@ source ero-env/bin/activate
 
 # Architecture
 
+```
 * `src/`
   * `theory/` : a sub-tree dedicated to the study of the theoretical case 
   * `application/` : a sub-tree dedicated to the study of the real case of the city of Montreal 
@@ -33,4 +34,5 @@ source ero-env/bin/activate
 * `README.md`
 * `synthesis.pdf` : summary of the team's reflections 
 * `LINKS` : link to the video presentation of the solution
-* `script.py` : a script running a demo of the solution 
+* `script.sh` : a script running a demo of the solution 
+```

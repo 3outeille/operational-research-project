@@ -18,30 +18,6 @@ def get_degree_nodes_directed(G):
 
     return in_degree, out_degree
 
-
-def discard_relou_edges(graph, in_degree, out_degree):
-
-    for i in graph.nodes():
-        if in_degree[i] >= out_degree[i]:
-            continue
-
-        # noeuds avec surplus de edge sortant
-        to_remove = out_degree[i] - in_degree[i]
-
-        out_edges = list(graph.out_edges(i, keys=True))
-
-        for src, dst, key in out_edges:
-            if in_degree[dst] <= out_degree[dst]:
-                continue
-
-            graph.remove_edge(src, dst, key)
-            out_degree[src] -= 1
-            in_degree[dst] -= 1
-            to_remove -= 1
-            if to_remove == 0:
-                break
-
-
 def compute_odd_pairs_directed_naive(graph, in_degree, out_degree):
     print('Eulerization...')
 
