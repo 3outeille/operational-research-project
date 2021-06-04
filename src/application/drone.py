@@ -1,7 +1,8 @@
-import itertools
+from ipyleaflet import *
 import networkx as nx
 import pandas as pd
 
+import src.generate_maps as generate_maps
 import utils
 
 def eulerize_graph(MG):
@@ -37,32 +38,29 @@ def run(map, iter):
 
     print('Loading graph...')
 
-    if map  == "montreal_di_graph":
-        MDG = generate_maps.generate_montreal_di_graph()
+    if map  == "montreal_graph":
+        MG = generate_maps.generate_montreal_graph()
     else:
-        MDG = generate_maps.generate_downtown_montreal_di_graph()
+        MG = generate_maps.generate_downtown_montreal_graph()
     
-    MDG = nx.convert_node_labels_to_integers(MDG)
+    MG = nx.convert_node_labels_to_integers(MG)
 
-    print('Graph loaded, getting largest connected component...')
-    MDG = get_strongly_connected_component(MDG)
-
-    map_length = sum(nx.get_edge_attributes(MDG, 'length').values())
+    map_length = sum(nx.get_edge_attributes(MG, 'length').values())
     print('Map length: {0:.2f}'.format(map_length))
 
-    eulerize_directed_graph(MDG, iter)
+    # Graph eulerization
+    G_aug = eulerize_graph(MG)
 
-    print('Computing path...')
-    eulerian_path = nx.algorithms.euler.eulerian_path(MDG)
+    print("find_shortest_circuit")
+    eulerian_path = find_shortest_circuit(G_aug, MG, start_node=0)
 
-    circuit_length = sum(nx.get_edge_attributes(MDG, 'length').values())
-
+    circuit_length = sum(nx.get_edge_attributes(MG, 'length').values())
     print('Circuit length: {0:.2f}'.format(circuit_length))
     print('Retrace ratio: {0:.2f}\n'.format(circuit_length / map_length))
 
     print('Generate visualization...')
     res = [elt[0] for elt in eulerian_path]
-    node_dict = dict(MDG.nodes(data=True))
+    node_dict = dict(MG.nodes(data=True))
     locations = [[node_dict[node]['y'], node_dict[node]['x']] for node in res]
 
     center = (45.5581645,-73.6788509) # Location of Montreal
