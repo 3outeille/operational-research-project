@@ -1,4 +1,6 @@
-# operational-research-project
+# Operational-Research-Project
+
+![](img/map_montreal.png)
 
 # Setup
 
