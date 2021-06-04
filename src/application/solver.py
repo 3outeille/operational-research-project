@@ -4,20 +4,20 @@ import drone
 
 def main():
     parser = argparse.ArgumentParser(description="blablablalbablal")
-    parser.add_argument("--mode", choices=["drone", "deneigeuse"])
-    parser.add_argument("--map", choices=["montreal_graph", "montreal_di_graph", "downtown_montreal_graph", "downtown_montreal_di_graph"])
-    parser.add_argument("--iter", choices=['1', '2', '3'])
+    parser.add_argument("--mode", choices=["drone", "deneigeuse"], default="deneigeuse")
+    parser.add_argument("--map", choices=["montreal_graph", "montreal_di_graph", "downtown_montreal_graph", "downtown_montreal_di_graph"], default="downtown_montreal_di_graph")
+    parser.add_argument("--algo", choices=['first_match', 'best_match'], help="Only for deneigeuse", default="best_match")
 
     args = parser.parse_args()
 
     if args.mode == "deneigeuse":
         if args.map != "montreal_di_graph" and args.map != "downtown_montreal_di_graph":
             raise ValueError("A directed graph should be used in deneigeuse mode.")
-        deneigeuse.run(args.map, args.iter)
+        deneigeuse.run(args.map, args.algo)
     elif args.mode == "drone":
         if args.map != "montreal_graph" and args.map != "downtown_montreal_graph":
             raise ValueError("An undirected graph should be used in drone mode.")
-        drone.run(args.map, args.iter)
+        drone.run(args.map)
     else:
         raise ValueError("Invalid mode. Should be either `deneigeuse` or `drone`")
 

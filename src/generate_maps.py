@@ -4,6 +4,7 @@ import numpy as np
 import osmnx as ox
 import random
 import scipy as sp
+ox.config(use_cache=True)
 
 ###########################
 #         UTILS
@@ -134,5 +135,5 @@ def generate_downtown_montreal_di_graph():
 # generate_montreal_di_graph()
 # generate_downtown_montreal_di_graph()
 #generate_random_graph(nb_node=5, is_weighted=False, is_directed=True)
-#generate_random_graph(nb_node=10, is_weighted=False, is_directed=False)
-#generate_random_graph(nb_node=50, is_weighted=True, is_directed=True)
+#generate_random_graph(nb_node=40, is_weighted=False, is_directed=False)
+#generate_random_graph(nb_node=40, is_weighted=True, is_directed=False)

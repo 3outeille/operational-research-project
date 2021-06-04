@@ -4,6 +4,7 @@ import networkx as nx
 import scipy as sp
 
 import src.generate_maps as generate_maps
+import utils
 
 
 def get_degree_nodes_directed(G):
@@ -91,7 +92,6 @@ def compute_dijkstra_batch(src_indexes, starting_nodes, graph, ending_nodes, end
 
     return res
 
-
 def compute_odd_pairs_directed_perfect(graph, in_degree, out_degree):
     print('Eulerization (multithreaded)...')
     starting_nodes = []
@@ -156,16 +156,15 @@ def get_strongly_connected_component(MDG):
     return MDG.subgraph(strongly_connected_nodes).copy()
 
 
-def eulerize_directed_graph(MDG, iter):
+def eulerize_directed_graph(MDG, algo):
     # Compute odd_nodes (return in_degree and out_degree)
     in_degree, out_degree = get_degree_nodes_directed(MDG)
 
     # Compute odd_pairs
-    # if iter == 2:
-        # odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
-    odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
-    # elif iter == 3:
-        # odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
+    if algo == "first_match":
+        odd_pairs = compute_odd_pairs_directed_naive(MDG, in_degree, out_degree)
+    else:
+        odd_pairs = compute_odd_pairs_directed_perfect(MDG, in_degree, out_degree)
 
     # Compute augmented graph : add all virtual edges to graph
     add_augmenting_path(MDG, odd_pairs)
@@ -173,9 +172,9 @@ def eulerize_directed_graph(MDG, iter):
     if not nx.is_eulerian(MDG):
         raise Exception("not eulerian")
 
-def run(map, iter):
+def run(map, algo):
 
-    print('Loading graph...')
+    print('Downloading graph...')
 
     if map  == "montreal_di_graph":
         MDG = generate_maps.generate_montreal_di_graph()
@@ -190,7 +189,7 @@ def run(map, iter):
     map_length = sum(nx.get_edge_attributes(MDG, 'length').values())
     print('Map length: {0:.2f}'.format(map_length))
 
-    eulerize_directed_graph(MDG, iter)
+    eulerize_directed_graph(MDG, algo)
 
     print('Computing path...')
     eulerian_path = nx.algorithms.euler.eulerian_path(MDG)
@@ -200,24 +199,4 @@ def run(map, iter):
     print('Circuit length: {0:.2f}'.format(circuit_length))
     print('Retrace ratio: {0:.2f}\n'.format(circuit_length / map_length))
 
-    print('Generate visualization...')
-    res = [elt[0] for elt in eulerian_path]
-    node_dict = dict(MDG.nodes(data=True))
-    locations = [[node_dict[node]['y'], node_dict[node]['x']] for node in res]
-
-    center = (45.5581645,-73.6788509) # Location of Montreal
-
-    ant_path = AntPath(
-            locations=locations,
-            dash_array=[1, 10],
-            delay=500,
-            color='#7590ba',
-            weight=1,
-            pulse_color='#3f6fba'
-        )
-
-    m = Map(center=center, zoom=10.5)
-    m.layout.width = '50%'
-    m.layout.height = '300px'
-    m.add_layer(ant_path)
-    m.save(f"{map}_circuit.html")
+    utils.generate_visualization(map, MDG, eulerian_path)
