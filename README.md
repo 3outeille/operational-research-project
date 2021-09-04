@@ -12,12 +12,12 @@ source ./demo.sh
 # Architecture
 
 ```
-* `src/`
-  * `theory/` : a sub-tree dedicated to the study of the theoretical case 
-  * `application/` : a sub-tree dedicated to the study of the real case of the city of Montreal 
-* `AUTHORS`
-* `README.md`
-* `synthesis.pdf` : summary of the team's reflections 
-* `LINKS` : link to the video presentation of the solution
-* `demo.sh` : a script running a demo of the solution 
+src/
+|  |_ theory/ : a sub-tree dedicated to the study of the theoretical case 
+|  |_ application/ : a sub-tree dedicated to the study of the real case of the city of Montreal 
+|_ AUTHORS
+|_ README.md
+|_ synthesis.pdf : summary of the team's reflections 
+|_ LINKS : link to the video presentation of the solution
+|_ demo.sh : a script running a demo of the solution 
 ```
